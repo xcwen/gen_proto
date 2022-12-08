@@ -1,10 +1,11 @@
 <?php
 namespace App;
+
 class PHPCtags
 {
     const VERSION = '0.6.0';
 
-    private   $mFile;
+    private $mFile;
 
     private $mFiles;
     private $mFileLines ;
@@ -29,7 +30,7 @@ class PHPCtags
     private $tagdata;
     private $cachefile;
     private $filecount;
-    public  $out_type="field";// field,  method
+    public $out_type="field";// field,  method
 
     public function __construct($options)
     {
@@ -62,7 +63,8 @@ class PHPCtags
     {
         return self::$mKinds;
     }
-    public function cleanFiles(){
+    public function cleanFiles()
+    {
         $this->mFiles=array();
         $this->mLines=array();
         $this->mUseConfig=array();
@@ -71,10 +73,11 @@ class PHPCtags
     {
         //$f=realpath($file);
         $f=$file;
-        $this->mFiles[$f] = file($f ) ;
+        $this->mFiles[$f] = file($f) ;
     }
 
-    public function setCacheFile($file) {
+    public function setCacheFile($file)
+    {
         $this->cachefile = $file;
     }
 
@@ -87,8 +90,12 @@ class PHPCtags
 
     private function getNodeAccess($node)
     {
-        if ($node->isPrivate()) return 'private';
-        if ($node->isProtected()) return 'protected';
+        if ($node->isPrivate()) {
+            return 'private';
+        }
+        if ($node->isProtected()) {
+            return 'protected';
+        }
         return 'public';
     }
 
@@ -107,13 +114,14 @@ class PHPCtags
      *
      * @return string sorted string
      **/
-    public static function stringSortByLine($str, $foldcase=FALSE)
+    public static function stringSortByLine($str, $foldcase = false)
     {
         $arr = explode("\n", $str);
-        if (!$foldcase)
+        if (!$foldcase) {
             sort($arr, SORT_STRING);
-        else
+        } else {
             sort($arr, SORT_STRING | SORT_FLAG_CASE);
+        }
         $str = implode("\n", $arr);
         return $str;
     }
@@ -123,59 +131,57 @@ class PHPCtags
         return $a['line'] > $b['line'] ? 1 : 0;
     }
 
-    private function getRealClassName($className , $scope =array() ){
-        if ( $className=="\$this" ||  $className == "static"   ) {
+    private function getRealClassName($className, $scope = array())
+    {
+        if ($className=="\$this" ||  $className == "static") {
             $c_scope = array_pop($scope);
             list($c_type, $c_name) = each($c_scope);
             $n_scope = array_pop($scope);
-            if(!empty($n_scope)) {
+            if (!empty($n_scope)) {
                 list($n_type, $n_name) = each($n_scope);
                 $s_str =  $n_name . '\\' . $c_name ;
             } else {
                 $s_str = $c_name;
-
             }
             return $s_str;
         }
 
-        if (  $className[0] != "\\"  ){
-            $ret_arr=explode("\\", $className , 2  );
-            if (count($ret_arr)==2){
-
+        if ($className[0] != "\\") {
+            $ret_arr=explode("\\", $className, 2);
+            if (count($ret_arr)==2) {
                 $pack_name=$ret_arr[0];
-                if (isset($this->mUseConfig[ $pack_name])){
+                if (isset($this->mUseConfig[ $pack_name])) {
                     return  $this->mUseConfig[$pack_name]."\\".$ret_arr[1] ;
-                }else{
+                } else {
                     return $className;
                 }
-            }else{
-                if (isset($this->mUseConfig[$className])){
+            } else {
+                if (isset($this->mUseConfig[$className])) {
                     return  $this->mUseConfig[$className];
-                }else{
+                } else {
                     return $className;
                 }
             }
-
-        }else{
+        } else {
             return $className;
         }
-
     }
 
-    private function  func_get_return_type($node,$scope) {
+    private function func_get_return_type($node, $scope)
+    {
         $return_type="". $node->returnType;
 
-        if (!$return_type )  {
-            if ( preg_match( "/@return[ \t]+([\$a-zA-Z0-9_\\\\|]+)/",$node->getDocComment(), $matches) ){
+        if (!$return_type) {
+            if (preg_match("/@return[ \t]+([\$a-zA-Z0-9_\\\\|]+)/", $node->getDocComment(), $matches)) {
                 $return_type= $matches[1];
             }
         }
         if ($return_type) {
-            $return_type=$this->getRealClassName($return_type,$scope);
+            $return_type=$this->getRealClassName($return_type, $scope);
         }
         return $return_type;
     }
-    private function struct($node, $reset=FALSE, $parent=array())
+    private function struct($node, $reset = false, $parent = array())
     {
         static $scope = array();
         static $structs = array();
@@ -192,33 +198,31 @@ class PHPCtags
         $implements = array();
 
 
-        if (!empty($parent)) array_push($scope, $parent);
-        if (!is_array($node) ) {
+        if (!empty($parent)) {
+            array_push($scope, $parent);
+        }
+        if (!is_array($node)) {
             /*
             try {
                 echo   @$node->getDocComment()."\n";
             }catch(\Exception $e){
             }
             */
-
         }
 
         if (is_array($node)) {
             foreach ($node as $subNode) {
                 $this->struct($subNode);
             }
-
-        } elseif ($node instanceof \PHPParser\Node\Stmt\Class_ ) {
+        } elseif ($node instanceof \PHPParser\Node\Stmt\Class_) {
             $name = $node->name;
             $filed_scope=$scope;
-            array_push($filed_scope, array('class' => $name ) );
-            foreach ($node as $key=> $subNode) {
-                $this->struct($subNode, FALSE, array('class' => $name));
+            array_push($filed_scope, array('class' => $name ));
+            foreach ($node as $key => $subNode) {
+                $this->struct($subNode, false, array('class' => $name));
             }
         } elseif ($node instanceof \PHPParser\Node\Stmt\ClassMethod) {
-
-
-            if ($this->out_type =="method"){
+            if ($this->out_type =="method") {
                 $name = $node->name;
 
                 $tmp_scope=$scope;
@@ -230,30 +234,25 @@ class PHPCtags
                     $structs []  = [$c_name,$name];
                 }
             }
-
-
         } elseif ($node instanceof \PHPParser\Node\Stmt\ClassConst) {
             $cons = $node->consts[0];
             $name = $cons->name;
-            if ($this->out_type =="field"){
-                $structs []  = [ $name,  strval( $node->getDocComment())  ] ;
+            if ($this->out_type =="field") {
+                $structs []  = [ $name,  strval($node->getDocComment())  ] ;
             }
-
         } elseif ($node instanceof \PHPParser\Node\Stmt\Property) {
             $kind = 'p';
             $prop = $node->props[0];
             $name = $prop->name;
-            if ($this->out_type =="field"){
-                $structs []  = [ $name,  strval( $node->getDocComment())  ] ;
+            if ($this->out_type =="field") {
+                $structs []  = [ $name,  strval($node->getDocComment())  ] ;
             }
-
-
         } elseif ($node instanceof \PHPParser\Node\Stmt\Namespace_) {
             $kind = 'n';
             $name = $node->name;
             $line = $node->getLine();
             foreach ($node as $subNode) {
-                $this->struct($subNode, FALSE, array('namespace' => $name));
+                $this->struct($subNode, false, array('namespace' => $name));
             }
         }
 
@@ -271,32 +270,34 @@ class PHPCtags
                 continue;
             }
 
-            if (!isset($files[$file]))
+            if (!isset($files[$file])) {
                 $files[$file] = file($file);
+            }
 
             $lines = $files[$file];
 
-            if (empty($struct['name']) || empty($struct['line']) || empty($struct['kind']))
+            if (empty($struct['name']) || empty($struct['line']) || empty($struct['kind'])) {
                 return;
+            }
 
             $kind= $struct['kind'];
             $str .= '(';
-            if  ($struct['name'] instanceof \PHPParser\Node\Expr\Variable ){
-                $str .= '"'. addslashes( $struct['name']->name) . '" ' ;
-            }else{
-                $str .= '"'. addslashes( $struct['name']) . '" ' ;
+            if ($struct['name'] instanceof \PHPParser\Node\Expr\Variable) {
+                $str .= '"'. addslashes($struct['name']->name) . '" ' ;
+            } else {
+                $str .= '"'. addslashes($struct['name']) . '" ' ;
             }
 
-            $str .= ' "'. addslashes($file.":".$struct['line']  )  . '" ' ;
+            $str .= ' "'. addslashes($file.":".$struct['line'])  . '" ' ;
 
 
             if ($this->mOptions['excmd'] == 'number') {
                 $str .= "\t" . $struct['line'];
             } else { //excmd == 'mixed' or 'pattern', default behavior
                 #$str .= "\t" . "/^" . rtrim($lines[$struct['line'] - 1], "\n") . "$/";
-                if ($kind=="f" || $kind=="m" ){
+                if ($kind=="f" || $kind=="m") {
                     $str .= ' "'. addslashes(rtrim($lines[$struct['line'] - 1], "\n")) . '" ' ;
-                }else{
+                } else {
                     $str .= ' nil ' ;
                 }
             }
@@ -313,12 +314,12 @@ class PHPCtags
                 //in_array('z', $this->mOptions['fields']) && $str .= "kind:";
                 //$str .= "\t" . $struct['kind'];
 
-                $str .= ' "'. addslashes( $kind ) . '" ' ;
-            } else if (in_array('K', $this->mOptions['fields'])) {
+                $str .= ' "'. addslashes($kind) . '" ' ;
+            } elseif (in_array('K', $this->mOptions['fields'])) {
             #field=K, kind of tag as fullname
                 //in_array('z', $this->mOptions['fields']) && $str .= "kind:";
                 //$str .= "\t" . self::$mKinds[$struct['kind']];
-                $str .= ' "'. addslashes( self::$mKinds[$kind] ) . '" ' ;
+                $str .= ' "'. addslashes(self::$mKinds[$kind]) . '" ' ;
             }
 
             #field=n
@@ -339,7 +340,7 @@ class PHPCtags
                         // n_* stuffs are namespace related scope variables
                         // current > class > namespace
                         $n_scope = array_pop($struct['scope']);
-                        if(!empty($n_scope)) {
+                        if (!empty($n_scope)) {
                             list($n_type, $n_name) = each($n_scope);
                             $s_str =  $n_name . '\\' . $name;
                         } else {
@@ -354,12 +355,11 @@ class PHPCtags
                         $c_scope = array_pop($struct['scope']);
                         list($c_type, $c_name) = each($c_scope);
                         $n_scope = array_pop($struct['scope']);
-                        if(!empty($n_scope)) {
+                        if (!empty($n_scope)) {
                             list($n_type, $n_name) = each($n_scope);
                             $s_str =  $n_name . '\\' . $c_name . '::' . $name;
                         } else {
                             $s_str = $c_name . '::' . $name;
-
                         }
 
                         $s_str = "(\"" .  addslashes($type) .  "\".\"".    addslashes($s_str). "\")";
@@ -369,37 +369,37 @@ class PHPCtags
                         break;
                 }
                 $str .= $s_str ;
-            }else{
+            } else {
                 //scope
-                if( $kind == "f" || $kind == "d" || $kind == "c" || $kind == "i" || $kind == "v"   ){
+                if ($kind == "f" || $kind == "d" || $kind == "c" || $kind == "i" || $kind == "v") {
                     $str .= ' () ' ;
                 }
             }
 
 
             #field=i
-            if(in_array('i', $this->mOptions['fields'])) {
+            if (in_array('i', $this->mOptions['fields'])) {
                 $inherits = array();
-                if(!empty($struct['extends'])) {
-                    $inherits[] =  $this->getRealClassName( $struct['extends']->toString() );
+                if (!empty($struct['extends'])) {
+                    $inherits[] =  $this->getRealClassName($struct['extends']->toString());
                 }
-                if(!empty($struct['implements'])) {
-                    foreach($struct['implements'] as $interface) {
-                        $inherits[] = $this->getRealClassName( $interface->toString());
+                if (!empty($struct['implements'])) {
+                    foreach ($struct['implements'] as $interface) {
+                        $inherits[] = $this->getRealClassName($interface->toString());
                     }
                 }
-                if(!empty($inherits)){
+                if (!empty($inherits)) {
                     //$str .= "\t" . 'inherits:' . implode(',', $inherits);
-                    $str .= ' "'. addslashes( implode(',', $inherits) ) . '" ' ;
-                }else{
+                    $str .= ' "'. addslashes(implode(',', $inherits)) . '" ' ;
+                } else {
                     //scope
-                    if(  $kind == "c" || $kind == "i"  ){
+                    if ($kind == "c" || $kind == "i") {
                         $str .= ' nil ' ;
                     }
                 }
-            }else{
+            } else {
                 //scope
-                if(  $kind == "c" || $kind == "i"  ){
+                if ($kind == "c" || $kind == "i") {
                     $str .= ' nil ' ;
                 }
             }
@@ -407,17 +407,16 @@ class PHPCtags
             #field=a
             if (in_array('a', $this->mOptions['fields']) && !empty($struct['access'])) {
                 //$str .= "\t" . "access:" . $struct['access'];
-                $str .= ' "'. addslashes(  $struct['access']  ) . '" ' ;
-            }else{
-
+                $str .= ' "'. addslashes($struct['access']) . '" ' ;
+            } else {
             }
 
             #type
-            if (  $kind == "f" || $kind == "p"  || $kind == "m"  || $kind == "d"  || $kind == "v"  || $kind == "T"  ) {
+            if ($kind == "f" || $kind == "p"  || $kind == "m"  || $kind == "d"  || $kind == "v"  || $kind == "T") {
                 //$str .= "\t" . "type:" . $struct['type'] ;
-                if ( $struct['type']  ) {
-                    $str .= ' "'. addslashes(  $struct['type']  ) . '" ' ;
-                }else{
+                if ($struct['type']) {
+                    $str .= ' "'. addslashes($struct['type']) . '" ' ;
+                } else {
                     $str .= ' nil ' ;
                 }
             }
@@ -432,12 +431,13 @@ class PHPCtags
         return $str;
     }
 
-    private function full_render() {
+    private function full_render()
+    {
         // Files will have been rendered already, just join and export.
 
         $str = '';
-        foreach($this->mLines as $file => $data) {
-          $str .= $data.PHP_EOL;
+        foreach ($this->mLines as $file => $data) {
+            $str .= $data.PHP_EOL;
         }
 
     /*
@@ -510,7 +510,7 @@ class PHPCtags
 
                 try {
                     return $this->process_single_file($filename);
-                } catch(\Exception $e) {
+                } catch (\Exception $e) {
                     echo "\PHPParser: {$e->getMessage()} - {$filename}".PHP_EOL;
                     return false;
                 }
@@ -518,7 +518,7 @@ class PHPCtags
         } else {
             try {
                  return $this->process_single_file($file);
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 echo "\PHPParser: {$e->getMessage()} - {$file}".PHP_EOL;
                 return false;
             }
@@ -528,23 +528,26 @@ class PHPCtags
 
     public function process_single_file($filename)
     {
-        $file = file_get_contents($filename );
-        return $this->struct($this->mParser->parse($file), TRUE);
+        $file = file_get_contents($filename);
+        return $this->struct($this->mParser->parse($file), true);
     }
-
 }
 
-class PHPCtagsException extends \Exception {
-    public function __toString() {
+class PHPCtagsException extends \Exception
+{
+    public function __toString()
+    {
         return "\nPHPCtags: {$this->message}\n";
     }
 }
 
-class ReadableRecursiveDirectoryIterator extends \RecursiveDirectoryIterator {
-    function getChildren() {
+class ReadableRecursiveDirectoryIterator extends \RecursiveDirectoryIterator
+{
+    function getChildren()
+    {
         try {
             return new \ReadableRecursiveDirectoryIterator($this->getPathname());
-        } catch(\UnexpectedValueException $e) {
+        } catch (\UnexpectedValueException $e) {
             file_put_contents('php://stderr', "\nPHPPCtags: {$e->getMessage()} - {$this->getPathname()}\n");
             return new \RecursiveArrayIterator(array());
         }

@@ -20,21 +20,21 @@ class PhpCode
                     try {
                         $field_list = $ctags->process_single_file("$proto_dir/$file");
                         foreach ($field_list as $item) {
-                            $ctrl_key= $proto_dir_fix_str.Utils::str_to_under_score($item[0]);
+                            $ctrl_key= $proto_dir_fix_str.Utils::toCamelCase($item[0]->name);
                             if (!isset($func_map[$ctrl_key ])) {
                                 $func_map[$ctrl_key ] =[];
                             }
-                            $func_map[ $ctrl_key][$item[1]]=true;
+                            $func_map[ $ctrl_key][$item[1]->name]=true;
                         }
                     } catch (\Exception $e) {
                         echo "解析异常:". $matches[1].".php\n";
-                        $func_map[ $proto_dir_fix_str. Utils::str_to_under_score($matches[1])]=false;
+                        $func_map[ $proto_dir_fix_str. Utils::toCamelCase($matches[1])]=false;
                     }
                 }
             }
         }
         //print_r( $func_map );
-        
+
         $tmp_func_str="";
         foreach ($action_map as $name => $func_str) {
             $tmp_func_str.="\n    //$name\n".$func_str ;
@@ -49,12 +49,9 @@ class PhpCode
             $action=$arr[5];
             $namespace_version="";
             $version_fix="";
-            $ctrl_class=$ctrl;
-            if (App::$new_control_flag) {
-                $ctrl_class=Utils::toCamelCase($ctrl);
-            }
+            $ctrl_class=static::get_ctrl_class($ctrl);
 
-            $ctrl_key=$ctrl;
+            $ctrl_key=$ctrl_class;
             if ($version) {
                 $version_fix= Utils::toCamelCase($version)."/";
                 $namespace_version="\\". Utils::toCamelCase($version) ;
@@ -90,14 +87,6 @@ class $ctrl_class extends Controller
 {
 
 
-    //中间件 \App\Core\Middleware\UriProcessLimit 使用,
-    public static \$action_process_limit_map = [
-    /*
-        "publish_list"=>[
-            "limit_at_time_count" => 4,  // 同时运行的进程数
-        ],
-    */
-    ];
 
 
 
@@ -211,10 +200,7 @@ $set_str
                     $call_path="/$version$call_path";
                 }
 
-                $ctrl_class=$ctrl;
-                if (App::$new_control_flag) {
-                    $ctrl_class=Utils::toCamelCase($ctrl);
-                }
+                $ctrl_class=static::get_ctrl_class($ctrl);
 
                 $desc=addslashes($item["TITLE"]);
                 $in_struct= "{$name}.in";
@@ -224,7 +210,7 @@ $set_str
                 $in_obj=null;
                 $out_obj=null;
                 $auth=trim($item["AUTH"]);
-                if($auth===""){
+                if ($auth==="") {
                     $auth="session";
                 }
 
@@ -243,7 +229,7 @@ $set_str
                 } else {
                     $action_map[$name]=static::gen_cmd_controller($version, $ctrl_action, $action, $in_obj, $desc) ;
                 }
-                if (!in_array($auth, ["session", "public","private"] )){
+                if (!in_array($auth, ["session", "public","private"])) {
                     echo "ERROR： $name : __AUTH: [$auth] need from:( session,public,private) \n";
                     exit(1);
                 }
@@ -255,5 +241,13 @@ $set_str
 
 
         return  [$cmd_php_str , $tag_map ,  $action_map, $maintainer_map];
+    }
+    public static function get_ctrl_class($ctrl)
+    {
+        $ctrl_class=$ctrl;
+        if (App::$new_control_flag) {
+            $ctrl_class=Utils::toCamelCase($ctrl);
+        }
+        return $ctrl_class;
     }
 }

@@ -8,7 +8,7 @@ class App
     public static $core_server_type=""; //php,go
     public static $controller_dir="";//控制器目录
     public static $config=[];//配置
-    public static $new_control_flag=[];//新版 生成代码
+    public static $new_control_flag=false;//新版 生成代码
     public static $proto_dir_list=[];// ["","v1","v2"..]
 
     public static function set_proto_dir_list()
@@ -37,6 +37,9 @@ class App
 
         static::$config=require("./config.php");
         static::$new_control_flag=static::$config["new_control_flag"]??false;
+        if (static::$new_control_flag) {
+            echo "=== use new_control_flag ===\n";
+        }
 
         $action_map = CommonCode::deal_proto(true, static::$work_dir, static::$controller_dir);
 
