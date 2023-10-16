@@ -187,6 +187,7 @@ $set_str
             }
 
             $name=$item["NAME"];
+            $config=$item["CONFIG"];
             if (preg_match("/((.*)\\.)?((.*)__(.*))/", $name, $matches)) {
                 //$cmdid=$item["CMD"];
                 $ctrl=$matches[4];
@@ -208,8 +209,9 @@ $set_str
                 $in_class="null";
                 $out_class="null";
                 $in_obj=null;
-                $out_obj=null;
+                // $out_obj=null;
                 $auth=trim($item["AUTH"]);
+                // $return_check=trim(@$item["RETURN_CHECK"]);
                 if ($auth==="") {
                     $auth="session";
                 }
@@ -221,7 +223,7 @@ $set_str
 
                 if (isset($struct_map["$out_struct"])) {
                     $out_class="\\Proto\\Project\\$version_fix{$ctrl_action}\\out::class";
-                    $out_obj= $struct_map["$out_struct"];
+                    // $out_obj= $struct_map["$out_struct"];
                 }
 
                 if (App::$core_server_type =="java") {
@@ -233,8 +235,12 @@ $set_str
                     echo "ERROR： $name : __AUTH: [$auth] need from:( session,public,private) \n";
                     exit(1);
                 }
-
-                $cmd_php_str.="\t[ \App\Controllers\\$version_fix$ctrl_class::class, \"$action\", $in_class , $out_class   ,\"$desc\" , \"$auth\" , \"$call_path\" ],\n";
+                $lines= preg_split("/\n/", var_export($config, true)) ;
+                $config_str= "";
+                foreach ($lines as $line) {
+                    $config_str.=trim($line);
+                }
+                $cmd_php_str.="\t[ \App\Controllers\\$version_fix$ctrl_class::class, \"$action\", $in_class , $out_class   ,\"$desc\" , \"$auth\" , \"$call_path\", $config_str],\n";
             }
         }
         $cmd_php_str.="];\n";

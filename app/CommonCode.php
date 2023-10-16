@@ -3,6 +3,27 @@ namespace App;
 
 class CommonCode
 {
+    // Go结构体标签解析函数
+    public static function parse_go_struct_tags($str)
+    {
+        // $tagStart = strpos($struct, "`");
+        // $tagEnd = strpos($struct, "`", $tagStart + 1);
+
+        $tag_map=[];
+        // if ($tagStart !== false && $tagEnd !== false) {
+
+        // $tags = substr($struct, $tagStart + 1, $tagEnd - $tagStart - 1);
+        preg_match_all('/([A-Za-z0-9*_]*)[ \t]*:[ \t]*(("[^"]*")|([^ ]+))/', $str, $matches);
+        if ($matches) {
+            $tag_count=count($matches[0]);
+            for ($i=0; $i<$tag_count; $i++) {
+                $tag_map[$matches[1][$i]] = $matches[2][$i] ;
+            }
+        }
+
+        return $tag_map;
+    }
+
     public static function output_proto_code($proto_dir_fix, $all_flag, $work_dir, $output_dir)
     {
 
@@ -42,11 +63,11 @@ class CommonCode
 
         $need_update_count=count($need_update_list);
         if ($need_update_count>0) {
-            $batch_list=  array_chunk($need_update_list, 50 );
+            $batch_list=  array_chunk($need_update_list, 50);
             $cur_count= 0;
-            foreach($batch_list as $sub_list) {
+            foreach ($batch_list as $sub_list) {
                 $cur_count+= count($sub_list);
-                $to_str=join(" ",$sub_list);
+                $to_str=join(" ", $sub_list);
                 $cmd=  App::$protoc. "   --proto_path=$include_path --proto_path=$work_dir   $to_str --php_out=$php_dir $out_config ";
                 echo "deal   $need_update_count  files :$cur_count \n";
                 $err_str= system($cmd, $ret);
@@ -65,8 +86,6 @@ class CommonCode
                     }
                     */
                 }
-
-
             }
         }
     }
@@ -307,6 +326,7 @@ $err_item_str
             "CMD" =>0,
             "OUT_EXAMPLE" =>"",
             "IN_EXAMPLE" =>"",
+            "CONFIG" =>[],
             "AUTH" =>"",
             "METHOD" =>"", //GET|POST, WEBSOCKET
             "PROJECT" =>"",
@@ -331,15 +351,29 @@ $err_item_str
                 } else {
                     $cmd_info[$title]=trim($value);
                 }
-            } elseif (preg_match("/^```[ \t]*([a-z0-9A-Z]+)*/", $line, $matches)) {
+            } elseif (preg_match("/^[ \t]*```[ \t]*([a-z0-9A-Z]+)*/", $line, $matches)) {
                 $tmp_block_name= @$matches[1];
+                // echo  "tmp_block_name: $tmp_block_name\n";
                 if (!$tmp_block_name) {
+                    // echo " name= $block_name, block_info: $block_info\n; ";
                     if ($block_name=="out") {
                         $cmd_info["OUT_EXAMPLE"]=$block_info;
                     } elseif ($block_name=="in") {
                         $cmd_info["IN_EXAMPLE"]= $block_info;
                     } elseif ($block_name=="desc") {
                         $cmd_info["DESC"]= $block_info;
+                    } elseif ($block_name=="config") {
+                        $block_info=  trim($block_info);
+                        $config=[];
+                        if ($block_info) {
+                            $config=json_decode($block_info, true);
+
+                            if (json_last_error()!=JSON_ERROR_NONE) {
+                                echo "$filename :config  解析 成json 出错:$block_info  出错 ";
+                                exit(1);
+                            }
+                        }
+                        $cmd_info["CONFIG"]= $config;
                     }
                     $block_name="";
                     $block_info="";
@@ -347,6 +381,7 @@ $err_item_str
                     $block_name=$tmp_block_name;
                 }
             } elseif ($block_name) {
+                // echo "add black line : $line  \n";
                 $block_info.=$line;
             }
         }
@@ -431,14 +466,13 @@ $err_item_str
 
         $ctags = new PHPCtags([]);
         $file_count=count($file_list);
-        foreach ($file_list as  $i => $src_file) {
-            if ($i%100==0){
+        foreach ($file_list as $i => $src_file) {
+            if ($i%100==0) {
                 echo "do struct files $file_count :$i \n";
             }
             if ($src_file) {
                 static::gen_struct($struct_map, $ctags, $src_file);
             }
-
         }
         return $struct_map;
     }

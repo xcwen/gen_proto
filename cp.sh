@@ -1,1 +1,1 @@
-cp gen_proto ~/console_php_core/src/vendor/common/framework_tools/bin
+cp gen_proto ~/aigc-php-core/src/vendor/common/framework_tools/bin
