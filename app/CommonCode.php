@@ -117,12 +117,15 @@ class CommonCode
             $struct_in=$cur_cmd_name.".in";
             if (isset($struct_map[$struct_in])) {
                 foreach ($struct_map[$struct_in] as $field_item) {
-                    $rules=$field_item[6];
-                    foreach ($rules as $rule) {
-                        $rule_name=$rule["type"];
-                        if (isset($validator_err_map[$rule_name])) {
-                            foreach ($validator_err_map[$rule_name] as $err_item) {
-                                $cmd_return_map[$cur_cmd_name][$err_item["name"]]=$err_item;
+                    $cfg=$field_item[6];
+                    if (isset( $cfg["rules"]) ) {
+                        $rules=$cfg["rules"];
+                        foreach ($rules as $rule) {
+                            $rule_name=$rule["type"];
+                            if (isset($validator_err_map[$rule_name])) {
+                                foreach ($validator_err_map[$rule_name] as $err_item) {
+                                    $cmd_return_map[$cur_cmd_name][$err_item["name"]]=$err_item;
+                                }
                             }
                         }
                     }
@@ -434,7 +437,7 @@ $err_item_str
                 $lines=file("$controller_dir/$file");
                 $cur_cmd_name="";
                 foreach ($lines as $line) {
-                    if (preg_match("/function[ \t]+([a-zA-Z0-9_]*)[ \t]*\\(/i", $line, $matches)) {
+                    if (preg_match("/^[ \t]public[ \t]+function[ \t]+([a-zA-Z0-9_]*)[ \t]*\\(/i", $line, $matches)) {
                         $action= $matches[1];
                         $cur_cmd_name="{$ctrl}__{$action}";
                         $error_map[$cur_cmd_name]=[];
@@ -512,26 +515,22 @@ $err_item_str
 
             //参数验证
             $rules=[];
-            if (strpos($desc, "RULE")!==false) { //存在 RULE
+            if (strpos($desc, "CFG=")!==false) { //存在 RULE
                 //处理desc
                 $json_str="";
-                $desc=preg_replace_callback("/RULE[ \t]*=(.*)/", function ($args) use (&$json_str) {
+                $desc=preg_replace_callback("/CFG=(.*})/", function ($args) use (&$json_str) {
                     $json_str =trim($args[1]);
-                    return "";
+                        return "";
                 }, $desc);
 
-                $rules=@json_decode($json_str, true);
-                if (is_array($rules)) {
-                    if (!isset($rules[0])) { //只有一个
-                        $rules=[$rules];
-                    }
+                $cfg=@json_decode($json_str, true);
+                if (is_array($cfg)) {
+                    $rules["cfg"]=$cfg;
                 } else {
-                    echo "$src_file :字段 $field_name 出现  RULE ,解析 成json 出错:$json_str| desc:  $desc ";
+                    echo "$src_file :字段 $field_name 出现  配置 `CFG` ,解析 成json 出错:$json_str| desc:  $desc ";
                     exit(1);
                 }
             }
-
-
 
 
 
