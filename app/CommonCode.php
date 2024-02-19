@@ -364,7 +364,7 @@ $err_item_str
                     } elseif ($block_name=="in") {
                         $cmd_info["IN_EXAMPLE"]= $block_info;
                     } elseif ($block_name=="desc") {
-                        $cmd_info["DESC"]= $block_info;
+                        $cmd_info["DESC"]= preg_replace("/>```/", "```", $block_info);
                     } elseif ($block_name=="config") {
                         $block_info=  trim($block_info);
                         $config=[];
@@ -437,7 +437,7 @@ $err_item_str
                 $lines=file("$controller_dir/$file");
                 $cur_cmd_name="";
                 foreach ($lines as $line) {
-                    if (preg_match("/^[ \t]public[ \t]+function[ \t]+([a-zA-Z0-9_]*)[ \t]*\\(/i", $line, $matches)) {
+                    if (preg_match("/^[ \t]+public[ \t]+function[ \t]+([a-zA-Z0-9_]*)[ \t]*\\(/i", $line, $matches)) {
                         $action= $matches[1];
                         $cur_cmd_name="{$ctrl}__{$action}";
                         $error_map[$cur_cmd_name]=[];
