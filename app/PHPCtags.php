@@ -204,7 +204,7 @@ class PHPCtags
         if (!is_array($node)) {
             /*
             try {
-                echo   @$node->getDocComment()."\n";
+            echo   @$node->getDocComment()."\n";
             }catch(\Exception $e){
             }
             */
@@ -316,7 +316,7 @@ class PHPCtags
 
                 $str .= ' "'. addslashes($kind) . '" ' ;
             } elseif (in_array('K', $this->mOptions['fields'])) {
-            #field=K, kind of tag as fullname
+                #field=K, kind of tag as fullname
                 //in_array('z', $this->mOptions['fields']) && $str .= "kind:";
                 //$str .= "\t" . self::$mKinds[$struct['kind']];
                 $str .= ' "'. addslashes(self::$mKinds[$kind]) . '" ' ;
@@ -440,13 +440,13 @@ class PHPCtags
             $str .= $data.PHP_EOL;
         }
 
-    /*
+        /*
         // sort the result as instructed
         if (isset($this->mOptions['sort']) && ($this->mOptions['sort'] == 'yes' || $this->mOptions['sort'] == 'foldcase')) {
-            $str = self::stringSortByLine($str, $this->mOptions['sort'] == 'foldcase');
+        $str = self::stringSortByLine($str, $this->mOptions['sort'] == 'foldcase');
         }
 
-    */
+        */
         // Save all tag information to a file for faster updates if a cache file was specified.
         if (isset($this->cachefile)) {
             file_put_contents($this->cachefile, serialize($this->tagdata));
@@ -471,7 +471,7 @@ class PHPCtags
 
         foreach (array_keys($this->mFiles) as $file) {
             $ret=$this->process($file);
-                return $ret;
+            return $ret;
         }
 
 
@@ -517,7 +517,7 @@ class PHPCtags
             }
         } else {
             try {
-                 return $this->process_single_file($file);
+                return $this->process_single_file($file);
             } catch (\Exception $e) {
                 echo "\PHPParser: {$e->getMessage()} - {$file}".PHP_EOL;
                 return false;
@@ -543,6 +543,7 @@ class PHPCtagsException extends \Exception
 
 class ReadableRecursiveDirectoryIterator extends \RecursiveDirectoryIterator
 {
+    #[\ReturnTypeWillChange]
     function getChildren()
     {
         try {

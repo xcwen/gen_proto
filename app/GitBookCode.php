@@ -101,7 +101,7 @@ class GitBookCode
 
         $export_git_book_config=$config["export_git_book"];
         $menu_config=@$config["menu"];
-        $project_name = trim(@$export_git_book_config["project_name"]);
+        $project_name = trim($export_git_book_config["project_name"]??"");
 
         //"default_route_fix" =>  "route__go_cc_defalut", //默认的路由前缀, .proto 里没有配置时使用
 

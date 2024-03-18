@@ -76,13 +76,13 @@ class CommonCode
                     exit(100);
                     /*
                     foreach ($sub_list as $file) {
-                        $cmd=  App::$protoc. "   --proto_path=$include_path --proto_path=$work_dir   $file   --php_out=$php_dir $out_config ";
-                        echo $cmd."\n";
-                        system($cmd, $ret);
-                        if ($ret !=0) {
-                            echo  "编译失败:$cmd\n";
-                            exit(100);
-                        }
+                    $cmd=  App::$protoc. "   --proto_path=$include_path --proto_path=$work_dir   $file   --php_out=$php_dir $out_config ";
+                    echo $cmd."\n";
+                    system($cmd, $ret);
+                    if ($ret !=0) {
+                    echo  "编译失败:$cmd\n";
+                    exit(100);
+                    }
                     }
                     */
                 }
@@ -118,7 +118,7 @@ class CommonCode
             if (isset($struct_map[$struct_in])) {
                 foreach ($struct_map[$struct_in] as $field_item) {
                     $cfg=$field_item[6];
-                    if (isset( $cfg["rules"]) ) {
+                    if (isset($cfg["rules"])) {
                         $rules=$cfg["rules"];
                         foreach ($rules as $rule) {
                             $rule_name=$rule["type"];
@@ -212,11 +212,11 @@ class CommonCode
         $error_value_map=[];
         foreach (($struct_map["error.enum_error"]) as $error_item) {
             /*
-              [0] =>
-              [1] =>
-              [2] => ERR_USER_NOFIND
-              [3] => 3002
-              [4] => 用户不存在
+            [0] =>
+            [1] =>
+            [2] => ERR_USER_NOFIND
+            [3] => 3002
+            [4] => 用户不存在
             */
             $name=$error_item[2];
             $value=$error_item[3];
@@ -406,10 +406,10 @@ $err_item_str
 
 
         $option_str=
-                   "option php_namespace = \"Proto\\\\Project\\\\$php_dir_str$proto_name\"; \n".
-                   "option java_package = \"com.vipthink.gen.proto$java_package_version_str\"; \n".
-                   "option go_package = \"proto/$go_dir_str$proto_name\"; \n" .
-                   "package proto.project.$package_version_str$proto_name;\n" ;
+        "option php_namespace = \"Proto\\\\Project\\\\$php_dir_str$proto_name\"; \n".
+        "option java_package = \"com.vipthink.gen.proto$java_package_version_str\"; \n".
+        "option go_package = \"proto/$go_dir_str$proto_name\"; \n" .
+        "package proto.project.$package_version_str$proto_name;\n" ;
         $data=file_get_contents($from)."\n$option_str";
         return Utils::save_file($to, $data);
     }
