@@ -150,7 +150,7 @@ END;
             $set_str.="        \$$name".  $fix_space ." = \$in->". static::gen_get_function_field_name($name). "();\n" ;
         }
 
-        if ( preg_match('/_opt$/',  $action )) {
+        if (preg_match('/_opt$/', $action)) {
             return "
     /**
      * $desc
@@ -172,8 +172,7 @@ $set_str
 
         return \$this->output_err(\" 自动生成代码, [$version_fix$ctrl_action]还未实现!\");
     }";
-
-        }else{
+        } else {
             return "
     /**
      * $desc
@@ -187,14 +186,13 @@ $set_str
 
         return \$this->output_err(\" 自动生成代码, [$version_fix$ctrl_action]还未实现!\");
     }";
-
         }
     }
 
     public static function gen_cmd_bind_php_str($cmd_list, $struct_map)
     {
         $cmd_php_str="<?php\n"
-            ."return [\n";
+        ."return [\n";
 
         $action_map=[];
         $tag_map=[];
