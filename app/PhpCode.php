@@ -234,6 +234,7 @@ $set_str
                 $in_obj=null;
                 // $out_obj=null;
                 $auth=trim($item["AUTH"]);
+                $tag_list=$item["TAGS"];
                 // $return_check=trim(@$item["RETURN_CHECK"]);
                 if ($auth==="") {
                     $auth="session";
@@ -264,6 +265,10 @@ $set_str
                     $config_str.=trim($line);
                 }
                 $cmd_php_str.="\t[ \App\Controllers\\$version_fix$ctrl_class::class, \"$action\", $in_class , $out_class   ,\"$desc\" , \"$auth\" , \"$call_path\", $config_str],\n";
+                if (in_array("_uri_no_project", $tag_list)) {
+                    $base_call_path="/$ctrl/$action";
+                    $cmd_php_str.="\t[ \App\Controllers\\$version_fix$ctrl_class::class, \"$action\", $in_class , $out_class   ,\"$desc\" , \"$auth\" , \"$base_call_path\", $config_str],\n";
+                }
             }
         }
         $cmd_php_str.="];\n";
