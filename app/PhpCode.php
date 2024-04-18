@@ -197,6 +197,7 @@ $set_str
         $action_map=[];
         $tag_map=[];
         $maintainer_map=[];
+        $url_map=[];
         foreach ($cmd_list as $item) {
             foreach ($item["TAGS"] as $tag) {
                 if ($tag) {
@@ -267,6 +268,14 @@ $set_str
                 $cmd_php_str.="\t[ \App\Controllers\\$version_fix$ctrl_class::class, \"$action\", $in_class , $out_class   ,\"$desc\" , \"$auth\" , \"$call_path\", $config_str],\n";
                 if (in_array("_uri_no_project", $tag_list)) {
                     $base_call_path="/$ctrl/$action";
+                    if (isset($url_map[$base_call_path])) {
+                        echo "ERROR：出现重复绑定URL:  $base_call_path \n";
+                        $old_path= $url_map[$base_call_path];
+                        echo "1: $old_path =>   $base_call_path\n ";
+                        echo "2: $call_path =>   $base_call_path\n ";
+                        exit(1);
+                    }
+                    $url_map[$base_call_path]= $call_path ;
                     $cmd_php_str.="\t[ \App\Controllers\\$version_fix$ctrl_class::class, \"$action\", $in_class , $out_class   ,\"$desc\" , \"$auth\" , \"$base_call_path\", $config_str],\n";
                 }
             }
