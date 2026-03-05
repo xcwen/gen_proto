@@ -72,6 +72,7 @@ class CommonCode
                 echo "deal   $need_update_count  files :$cur_count \n";
                 $err_str= system($cmd, $ret);
                 if ($ret !=0) { //异常，看看那个
+                    echo "CMD:". $cmd. "\n";
                     echo "出错:". $err_str."\n";
                     exit(100);
                     /*
@@ -406,10 +407,11 @@ $err_item_str
 
 
         $option_str=
-        "option php_namespace = \"Proto\\\\Project\\\\$php_dir_str$proto_name\"; \n".
-        "option java_package = \"com.vipthink.gen.proto$java_package_version_str\"; \n".
-        "option go_package = \"proto/$go_dir_str$proto_name\"; \n" .
-        "package proto.project.$package_version_str$proto_name;\n" ;
+             "option php_namespace = \"Proto\\\\Project\\\\$php_dir_str$proto_name\";\n".
+             "option java_package = \"com.vipthink.gen.proto$java_package_version_str\";\n".
+             "option go_package = \"proto/$go_dir_str$proto_name;$go_dir_str$proto_name\";\n" .
+
+             "package proto.project.$package_version_str$proto_name;\n" ;
         $data=file_get_contents($from)."\n$option_str";
         return Utils::save_file($to, $data);
     }
