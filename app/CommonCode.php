@@ -55,15 +55,18 @@ class CommonCode
             }
         }
         $out_config="";
+        $bat_count=50;
         if (App::$core_server_type=="go") {
+            $bat_count=1;
             $out_config.= " --plugin=$work_dir/../../bin/protoc-gen-go --go_out=$go_dir";
         } elseif (App::$core_server_type=="java") {
+            $bat_count=1;
             $out_config.= " --java_out=$java_dir";
         }
 
         $need_update_count=count($need_update_list);
         if ($need_update_count>0) {
-            $batch_list=  array_chunk($need_update_list, 50);
+            $batch_list=  array_chunk($need_update_list, $bat_count);
             $cur_count= 0;
             foreach ($batch_list as $sub_list) {
                 $cur_count+= count($sub_list);
@@ -75,17 +78,6 @@ class CommonCode
                     echo "CMD:". $cmd. "\n";
                     echo "出错:". $err_str."\n";
                     exit(100);
-                    /*
-                    foreach ($sub_list as $file) {
-                    $cmd=  App::$protoc. "   --proto_path=$include_path --proto_path=$work_dir   $file   --php_out=$php_dir $out_config ";
-                    echo $cmd."\n";
-                    system($cmd, $ret);
-                    if ($ret !=0) {
-                    echo  "编译失败:$cmd\n";
-                    exit(100);
-                    }
-                    }
-                    */
                 }
             }
         }
@@ -100,16 +92,18 @@ class CommonCode
 
 
         //读取 proto_validator.json
-        $proto_validator=json_decode(file_get_contents($work_dir."/../gen/proto_validator.json"), true);
+        $proto_validator=@json_decode(file_get_contents($work_dir."/../gen/proto_validator.json"), true);
 
         $validator_err_map=[];
-        foreach ($proto_validator as $v_item) {
-            //;
-            $err_list=[];
-            foreach ($v_item["return_error_list"] as $errno) {
-                $err_list[]= $error_value_map[$errno];
+        if ($proto_validator) {
+            foreach ($proto_validator as $v_item) {
+                //;
+                $err_list=[];
+                foreach ($v_item["return_error_list"] as $errno) {
+                    $err_list[]= $error_value_map[$errno];
+                }
+                $validator_err_map[$v_item["type"]]=$err_list;
             }
-            $validator_err_map[$v_item["type"]]=$err_list;
         }
 
 
