@@ -226,7 +226,7 @@ class CommonCode
         }
 
 
-        $cmd_return_map=  static::get_cmd_return_cmd($cmd_list, $work_dir, $controller_dir, $error_name_map, $error_value_map, $struct_map);
+        //$cmd_return_map=  static::get_cmd_return_cmd($cmd_list, $work_dir, $controller_dir, $error_name_map, $error_value_map, $struct_map);
 
 
 
@@ -235,7 +235,7 @@ class CommonCode
 
         //生成menu
 
-        GitBookCode::export_git_book($config, $cmd_map, $struct_map, $cmd_return_map, $error_value_map, $menu_tree, $route_fix_config);
+        #GitBookCode::export_git_book($config, $cmd_map, $struct_map, $cmd_return_map, $error_value_map, $menu_tree, $route_fix_config);
 
         $cmd_list=$cmd_map;
         usort($cmd_list, function ($a, $b) {
@@ -254,13 +254,14 @@ class CommonCode
 
         Utils::save_file($php_dir."/cmd.json", json_encode($cmd_info, JSON_PRETTY_PRINT| JSON_UNESCAPED_UNICODE));
 
+        $cmd_return_map=[];
 
         Utils::save_file($php_dir."/info.json", json_encode([
             "struct_map"     =>  Utils::reset_map($struct_map),
             "cmd_return_map" => Utils::reset_map($cmd_return_map),
             "error_list"     =>  Utils::reset_map($error_value_map),
-            "menu_tree" =>$menu_tree,
-            "route_fix_config"=>$route_fix_config ,
+            "menu_tree" =>(object)[],
+            "route_fix_config"=>(object)[],
             "config"=> $config,
         ], JSON_PRETTY_PRINT|  JSON_UNESCAPED_UNICODE));
 
