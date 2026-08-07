@@ -90,43 +90,6 @@ class CommonCode
             $cmd_return_map= array_merge($cmd_return_map, static::get_cmd_return_error($controller_dir, $subdir, $error_name_map));
         }
 
-
-        //读取 proto_validator.json
-        $proto_validator=@json_decode(file_get_contents($work_dir."/../gen/proto_validator.json"), true);
-
-        $validator_err_map=[];
-        if ($proto_validator) {
-            foreach ($proto_validator as $v_item) {
-                //;
-                $err_list=[];
-                foreach ($v_item["return_error_list"] as $errno) {
-                    $err_list[]= $error_value_map[$errno];
-                }
-                $validator_err_map[$v_item["type"]]=$err_list;
-            }
-        }
-
-
-        foreach ($cmd_list as $cmd_item) {
-            $cur_cmd_name=$cmd_item["NAME"];
-            $struct_in=$cur_cmd_name.".in";
-            if (isset($struct_map[$struct_in])) {
-                foreach ($struct_map[$struct_in] as $field_item) {
-                    $cfg=$field_item[6];
-                    if (isset($cfg["rules"])) {
-                        $rules=$cfg["rules"];
-                        foreach ($rules as $rule) {
-                            $rule_name=$rule["type"];
-                            if (isset($validator_err_map[$rule_name])) {
-                                foreach ($validator_err_map[$rule_name] as $err_item) {
-                                    $cmd_return_map[$cur_cmd_name][$err_item["name"]]=$err_item;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
         foreach ($cmd_return_map as &$err_list) {
             $err_list = array_values($err_list);
         }

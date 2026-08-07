@@ -82,23 +82,8 @@ class GitBookCode
         }
     }
 
-    public static $proto_validator_map=[];
-
-    public static function init_proto_validator_map()
-    {
-        $proto_validator_config=@json_decode(@file_get_contents("./gen/proto_validator.json"), true);
-        $proto_validator_config=$proto_validator_config??[];
-        foreach ($proto_validator_config as $v_item) {
-            static::$proto_validator_map[$v_item["type"] ]=$v_item;
-        }
-    }
-
     public static function export_git_book($config, &$cmd_map, &$struct_map, &$cmd_return_map, &$error_value_map, &$menu_tree, &$route_fix_config)
     {
-
-        static::init_proto_validator_map();
-
-
         $export_git_book_config=$config["export_git_book"];
         $menu_config=@$config["menu"];
         $project_name = trim($export_git_book_config["project_name"]??"");
@@ -571,15 +556,14 @@ END;
             if (count($rule_list)>0) {
                 foreach ($rule_list as $rule_item) {
                     $type=@$rule_item["type"];
-                    $type_desc=@static::$proto_validator_map[$type]["desc"];
                     if ($type=="required") {
                         $required_str="是";
                     } else {
                         if (isset($rule_item["config"])) {
                             $config_str=json_encode($rule_item["config"]);
-                            $rule_str="`$type_desc:$type($config_str)`";
+                            $rule_str="`$type($config_str)`";
                         } else {
-                            $rule_str="`$type_desc:$type`";
+                            $rule_str="`$type`";
                         }
                     }
                 }
